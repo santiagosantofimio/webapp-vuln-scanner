@@ -1,17 +1,17 @@
-# Vigía
+# Argus Sentinel
 
 A defensive web application vulnerability scanner. Point it at a URL and it crawls the site within the same origin, runs a set of **non-destructive** security checks, and produces a report that lists every finding with its severity, the affected URL, the evidence, and concrete remediation advice.
 
-Vigía only **detects**. It never exploits, deletes, or modifies data, and it never runs denial-of-service style payloads.
+Argus Sentinel only **detects**. It never exploits, deletes, or modifies data, and it never runs denial-of-service style payloads.
 
 > The console output and the generated report are in Spanish. The code and this README are in English.
 
 ## Authorization and scope
 
-Scanning a system you do not own, without written permission, is illegal in most jurisdictions. Use Vigía **only against systems you own or are explicitly authorized to test.**
+Scanning a system you do not own, without written permission, is illegal in most jurisdictions. Use Argus Sentinel **only against systems you own or are explicitly authorized to test.**
 
 - The default allowed target is `localhost` / `127.0.0.1`. Any other host is refused unless you confirm ownership with `--i-own-this` or list it in an authorized-hosts file (`--authorized-hosts`).
-- Vigía stays on the **same origin** as the target. It never follows links to other domains.
+- Argus Sentinel stays on the **same origin** as the target. It never follows links to other domains.
 - It sends **detection probes only**. It never attempts to exploit, delete, or modify data.
 - Requests are rate-limited (bounded concurrency and a configurable delay) so the scan does not behave like an attack.
 
@@ -43,15 +43,15 @@ pip install -e .
 ## Usage
 
 ```bash
-vigia http://localhost:8080
-vigia http://localhost:8080 --html report.html --json report.json
-vigia http://localhost:8080 --max-depth 3 --max-pages 100 --delay 0.3
+argus http://localhost:8080
+argus http://localhost:8080 --html report.html --json report.json
+argus http://localhost:8080 --max-depth 3 --max-pages 100 --delay 0.3
 ```
 
 Or without installing:
 
 ```bash
-python -m vigia http://localhost:8080
+python -m argus http://localhost:8080
 ```
 
 ### Options
@@ -72,7 +72,7 @@ python -m vigia http://localhost:8080
 
 ## Output
 
-Vigía emits two report formats from the same set of findings: **JSON** (for machines) and **HTML** (for people). Each finding carries its OWASP category, severity (`info` / `baja` / `media` / `alta`), affected URL, evidence, and remediation.
+Argus Sentinel emits two report formats from the same set of findings: **JSON** (for machines) and **HTML** (for people). Each finding carries its OWASP category, severity (`info` / `baja` / `media` / `alta`), affected URL, evidence, and remediation.
 
 The exit code is **CI-friendly**: `0` when nothing at or above the `--fail-on` threshold is found, non-zero otherwise.
 
@@ -81,7 +81,7 @@ The exit code is **CI-friendly**: `0` when nothing at or above the `--fail-on` t
 Each check is an independent detector module implementing a common interface (`run(context) -> list[Finding]`), so new checks can be added without touching the core. A bounded crawler (same origin, configurable depth, page limit, and inter-request delay) feeds the detectors the pages it discovers.
 
 ```
-vigia/
+argus/
   cli.py            argument parsing and console output
   scanner.py        orchestration: crawl then run detectors
   crawler.py        same-origin bounded crawler

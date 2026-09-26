@@ -30,9 +30,11 @@ def severity_counts(findings: list[Finding]) -> dict[str, int]:
 
 def build_summary(result: ScanResult) -> dict:
     findings = result.sorted_findings()
+    now = datetime.now(timezone.utc)
     return {
         "target": result.target,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": now.isoformat(),
+        "generated_at_human": now.strftime("%Y-%m-%d %H:%M UTC"),
         "pages_crawled": len(result.pages),
         "total_findings": len(findings),
         "counts": severity_counts(findings),

@@ -1,7 +1,7 @@
 [project]
-name = "vigia"
+name = "argus-sentinel"
 version = "0.1.0"
-description = "Defensive web application vulnerability scanner"
+description = "Argus Sentinel: a defensive web application vulnerability scanner"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
@@ -18,17 +18,17 @@ dev = [
 ]
 
 [project.scripts]
-vigia = "vigia.cli:main"
+argus = "argus.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["vigia*"]
+include = ["argus*"]
 
 [tool.setuptools.package-data]
-vigia = ["templates/*.j2"]
+argus = ["templates/*.j2"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from vigia.authorization import AuthorizationError, ensure_authorized, is_loopback
+from argus.authorization import AuthorizationError, ensure_authorized, is_loopback
 
 
 def test_loopback_hosts():

@@ -12,7 +12,7 @@ class ScanConfig:
     concurrency: int = 5
     timeout: float = 10.0
     request_delay: float = 0.2
-    user_agent: str = "Vigia/0.1 (defensive scanner)"
+    user_agent: str = "Argus Sentinel/0.1 (defensive scanner)"
     allow_external_host: bool = False
     verify_tls: bool = True
     authorized_hosts: list[str] = field(default_factory=list)

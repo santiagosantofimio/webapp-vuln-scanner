@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from vigia.detectors.cookies import CookiesDetector
-from vigia.detectors.csrf import CsrfDetector
-from vigia.detectors.info_leak import InfoLeakDetector
-from vigia.detectors.reflected_xss import ReflectedXssDetector
-from vigia.detectors.security_headers import SecurityHeadersDetector
-from vigia.detectors.sensitive_paths import SensitivePathsDetector
-from vigia.detectors.sql_injection import SqlInjectionDetector
-from vigia.models import FormField, HtmlForm, Severity
+from argus.detectors.cookies import CookiesDetector
+from argus.detectors.csrf import CsrfDetector
+from argus.detectors.info_leak import InfoLeakDetector
+from argus.detectors.reflected_xss import ReflectedXssDetector
+from argus.detectors.security_headers import SecurityHeadersDetector
+from argus.detectors.sensitive_paths import SensitivePathsDetector
+from argus.detectors.sql_injection import SqlInjectionDetector
+from argus.models import FormField, HtmlForm, Severity
 from conftest import FakeClient, FakeResponse, make_context, make_page
 
 

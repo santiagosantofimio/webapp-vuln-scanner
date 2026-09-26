@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argus Sentinel — Reporte de seguridad</title>
+<style>
+:root {
+  --bg: #090c12;
+  --bg-grid: #0d121b;
+  --panel: #10151f;
+  --panel-hi: #141b28;
+  --line: #1f2836;
+  --line-hi: #2b384c;
+  --text: #e9eef6;
+  --muted: #9aa7bd;
+  --faint: #6c778c;
+  --brand: #4ee39b;
+  --brand-dim: #2b7a58;
+  --alta: #ff5f6e;
+  --media: #ffab52;
+  --baja: #4cc6e8;
+  --info: #8792a6;
+  --sev: var(--info);
+  --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 10px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(78,227,155,0.04), transparent 240px),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(43,56,76,0.14) 39px, rgba(43,56,76,0.14) 40px),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: rgba(78,227,155,0.28); color: #fff; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+* { scrollbar-width: thin; scrollbar-color: var(--line-hi) transparent; }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-thumb { background: var(--line-hi); border-radius: 6px; border: 3px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #3a4a63; }
+
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 22px 96px; }
+
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 26px 0 22px;
+  border-bottom: 1px solid var(--line);
+}
+.ident { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.dot {
+  position: relative;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--brand);
+  flex: none;
+}
+.dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
+  animation: live 2.6s cubic-bezier(0.22,1,0.36,1) infinite;
+}
+@keyframes live {
+  0% { transform: scale(0.75); opacity: 0.85; }
+  70%, 100% { transform: scale(1.7); opacity: 0; }
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.wordmark b { color: var(--brand); font-weight: 600; }
+.tagline { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
+
+.readout {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 3px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.readout dt { color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
+.readout dd { margin: 0; color: var(--muted); text-align: right; word-break: break-all; }
+.readout dd b { color: var(--text); font-weight: 600; }
+
+.scene { padding: 30px 0 8px; }
+.scene h1 {
+  font-family: var(--mono);
+  font-size: clamp(21px, 3.4vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 20px;
+}
+.scene h1 .verdict-clean { color: var(--brand); }
+.scene h1 .verdict-alert { color: var(--alta); }
+
+.meter { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); }
+.meter span { display: block; height: 100%; min-width: 0; }
+.meter span.alta { background: var(--alta); }
+.meter span.media { background: var(--media); }
+.meter span.baja { background: var(--baja); }
+.meter span.info { background: var(--info); }
+.meter span.none { background: linear-gradient(90deg, var(--brand-dim), var(--brand)); flex: 1; }
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-top: 22px;
+  padding: 13px 0;
+  background: linear-gradient(180deg, var(--bg) 72%, rgba(9,12,18,0));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  --c: var(--info);
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 13px;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.12s var(--ease-out);
+}
+.chip:active { transform: scale(0.97); }
+.chip .tick { width: 7px; height: 7px; border-radius: 2px; background: var(--c); flex: none; opacity: 0.85; }
+.chip .n { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="true"] { color: var(--text); border-color: color-mix(in srgb, var(--c) 55%, var(--line)); background: color-mix(in srgb, var(--c) 15%, var(--panel)); }
+.chip[data-sev="alta"] { --c: var(--alta); }
+.chip[data-sev="media"] { --c: var(--media); }
+.chip[data-sev="baja"] { --c: var(--baja); }
+.chip[data-sev="info"] { --c: var(--info); }
+.chip[data-sev="all"] { --c: var(--brand); }
+
+.spacer { flex: 1 1 40px; }
+.search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0 11px; min-width: 180px; flex: 0 1 240px;
+}
+.search svg { width: 14px; height: 14px; color: var(--faint); flex: none; }
+.search input {
+  appearance: none; background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--mono); font-size: 12.5px;
+  padding: 8px 0; width: 100%;
+}
+.search input::placeholder { color: var(--faint); }
+.toggle-all {
+  appearance: none; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
+  color: var(--muted); background: none; border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.12s var(--ease-out);
+}
+.toggle-all:active { transform: scale(0.97); }
+
+.list { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
+
+.finding {
+  --sev: var(--info);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+.finding[data-severity="alta"] { --sev: var(--alta); }
+.finding[data-severity="media"] { --sev: var(--media); }
+.finding[data-severity="baja"] { --sev: var(--baja); }
+.finding[data-severity="info"] { --sev: var(--info); }
+.finding.is-open { border-color: color-mix(in srgb, var(--sev) 40%, var(--line)); }
+
+.finding-head {
+  appearance: none;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+}
+.finding-head { transition: background 0.15s ease; }
+.finding-head:active { background: var(--panel-hi); }
+@media (hover: hover) and (pointer: fine) {
+  .finding-head:hover { background: var(--panel-hi); }
+  .finding:hover { border-color: var(--line-hi); }
+  .chip:hover { border-color: var(--line-hi); color: var(--text); }
+  .toggle-all:hover { color: var(--text); border-color: var(--line-hi); }
+}
+.sev-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sev);
+  background: color-mix(in srgb, var(--sev) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sev) 40%, transparent);
+  border-radius: 6px;
+  padding: 4px 9px;
+  white-space: nowrap;
+  flex: none;
+}
+.finding-title { min-width: 0; }
+.finding-title .t { font-weight: 600; font-size: 15px; letter-spacing: -0.005em; }
+.finding-title .loc {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.finding-title .loc .m { color: var(--brand); }
+.head-right { display: flex; align-items: center; gap: 12px; flex: none; }
+.owasp {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+.owasp b { color: var(--text); font-weight: 600; }
+.caret { width: 12px; height: 12px; color: var(--faint); transition: transform 0.22s var(--ease-out); }
+.finding.is-open .caret { transform: rotate(90deg); color: var(--sev); }
+
+.finding-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.26s var(--ease-out); }
+.finding.is-open .finding-body { grid-template-rows: 1fr; }
+.finding-body > .inner { overflow: hidden; min-height: 0; }
+.body-pad { padding: 4px 18px 18px; border-top: 1px solid var(--line); margin-top: -1px; }
+.finding.is-open .body-pad { border-top-color: color-mix(in srgb, var(--sev) 26%, var(--line)); }
+
+.field { margin-top: 15px; }
+.field:first-child { margin-top: 14px; }
+.field .k {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+  margin-bottom: 6px;
+}
+.field .prose { color: var(--text); max-width: 72ch; }
+.evidence {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #cdd7e6;
+  background: var(--bg-grid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.evidence::before { content: "› "; color: var(--sev); }
+.tagrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; align-items: center; }
+.src {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em;
+  color: var(--faint); text-transform: uppercase;
+}
+.src b { color: var(--muted); font-weight: 500; }
+
+.empty {
+  margin-top: 20px;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 7%, var(--panel)), var(--panel));
+  border-radius: var(--radius);
+  padding: 46px 28px;
+  text-align: center;
+}
+.empty .mark { font-family: var(--mono); color: var(--brand); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; }
+.empty h2 { font-family: var(--mono); font-weight: 600; font-size: 20px; margin: 12px 0 6px; }
+.empty p { color: var(--muted); margin: 0; }
+
+.no-match { display: none; text-align: center; color: var(--muted); font-family: var(--mono); font-size: 13px; padding: 40px; }
+.no-match.show { display: block; }
+
+.foot {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+  font-size: 12.5px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.foot .lock { color: var(--brand); font-family: var(--mono); letter-spacing: 0.1em; }
+
+@media (max-width: 640px) {
+  .finding-head { grid-template-columns: auto 1fr; gap: 11px; }
+  .head-right { grid-column: 1 / -1; justify-content: space-between; padding-left: 2px; }
+  .scene h1 { font-size: 20px; }
+  .readout { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .finding-body, .caret, .meter span { transition: none; }
+  .dot::after { animation: none; opacity: 0.5; transform: scale(1.2); }
+}
+@media print {
+  body { background: #fff; color: #12151b; }
+  .controls, .search, .toggle-all, .caret { display: none !important; }
+  .finding, .panel, .empty { break-inside: avoid; border-color: #d5dae2; }
+  .finding-body { grid-template-rows: 1fr !important; }
+  .wordmark, .wordmark b, .dot { color: #12151b; }
+  .evidence { background: #f4f6f9; color: #1d222b; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="ident">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <div class="wordmark">Argus <b>Sentinel</b></div>
+        <div class="tagline">Escáner de vulnerabilidades web · detección defensiva</div>
+      </div>
+    </div>
+    <dl class="readout">
+      <dt>Objetivo</dt><dd><b>{{ summary.target }}</b></dd>
+      <dt>Escaneo</dt><dd>{{ summary.generated_at_human }}</dd>
+      <dt>Páginas</dt><dd><b>{{ summary.pages_crawled }}</b> rastreadas</dd>
+      <dt>Hallazgos</dt><dd><b>{{ summary.total_findings }}</b> en total</dd>
+    </dl>
+  </header>
+
+  <section class="scene">
+    {% if findings %}
+    <h1>Se detectaron <span class="verdict-alert">{{ summary.total_findings }} hallazgo{{ '' if summary.total_findings == 1 else 's' }}</span> en {{ summary.pages_crawled }} página{{ '' if summary.pages_crawled == 1 else 's' }}.</h1>
+    {% else %}
+    <h1>El objetivo <span class="verdict-clean">superó todas las comprobaciones</span>.</h1>
+    {% endif %}
+    <div class="meter" role="img" aria-label="Distribución de hallazgos por severidad">
+      {% if findings %}
+        {% for sev in severity_order %}{% if summary.counts[sev.value] %}<span class="{{ sev.value }}" style="flex: {{ summary.counts[sev.value] }}" title="{{ severity_labels[sev] }}: {{ summary.counts[sev.value] }}"></span>{% endif %}{% endfor %}
+      {% else %}
+        <span class="none"></span>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if findings %}
+  <div class="controls">
+    <div class="chips" role="group" aria-label="Filtrar por severidad">
+      <button type="button" class="chip" data-sev="all" aria-pressed="true"><span class="tick"></span>Todas <span class="n">{{ summary.total_findings }}</span></button>
+      {% for sev in severity_order %}{% if summary.counts[sev.value] %}
+      <button type="button" class="chip" data-sev="{{ sev.value }}" aria-pressed="false"><span class="tick"></span>{{ severity_labels[sev] }} <span class="n">{{ summary.counts[sev.value] }}</span></button>
+      {% endif %}{% endfor %}
+    </div>
+    <span class="spacer"></span>
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
+      <input type="search" id="q" placeholder="Filtrar hallazgos…" aria-label="Filtrar hallazgos por texto" autocomplete="off">
+    </label>
+    <button type="button" class="toggle-all" id="toggleAll" aria-pressed="false">Expandir todo</button>
+  </div>
+
+  <div class="list" id="list">
+    {% for f in findings %}
+    <article class="finding{{ ' is-open' if f.severity.rank >= 2 else '' }}" data-severity="{{ f.severity.value }}" data-owasp="{{ f.owasp.code }}">
+      <button type="button" class="finding-head" aria-expanded="{{ 'true' if f.severity.rank >= 2 else 'false' }}" aria-controls="body-{{ loop.index }}">
+        <span class="sev-tag">{{ severity_labels[f.severity] }}</span>
+        <span class="finding-title">
+          <span class="t">{{ f.title }}</span>
+          <span class="loc"><span class="m">{{ f.request_method }}</span> {{ f.url }}{% if f.parameter %} · {{ f.parameter }}{% endif %}</span>
+        </span>
+        <span class="head-right">
+          <span class="owasp"><b>{{ f.owasp.code }}</b> {{ f.owasp.name }}</span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+        </span>
+      </button>
+      <div class="finding-body" id="body-{{ loop.index }}">
+        <div class="inner">
+          <div class="body-pad">
+            {% if f.parameter %}
+            <div class="field">
+              <div class="k">Ubicación</div>
+              <div class="evidence">{{ f.request_method }} {{ f.url }}
+parámetro: {{ f.parameter }}</div>
+            </div>
+            {% endif %}
+            <div class="field">
+              <div class="k">Evidencia</div>
+              <div class="evidence">{{ f.evidence }}</div>
+            </div>
+            <div class="field">
+              <div class="k">Remediación</div>
+              <div class="prose">{{ f.remediation }}</div>
+            </div>
+            <div class="tagrow">
+              <span class="src">detector: <b>{{ f.detector }}</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="no-match" id="noMatch">Ningún hallazgo coincide con el filtro.</div>
+  {% else %}
+  <div class="empty">
+    <div class="mark">Sin hallazgos</div>
+    <h2>Nada que reportar</h2>
+    <p>El objetivo superó todas las comprobaciones ejecutadas por Argus Sentinel.</p>
+  </div>
+  {% endif %}
+
+  <footer class="foot">
+    <span class="lock">◆ USO DEFENSIVO</span>
+    <span>Argus Sentinel solo detecta; nunca explota, borra ni modifica datos. Úsalo solo contra sistemas propios o con autorización escrita.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var list = document.getElementById("list");
+  if (!list) return;
+  var findings = Array.prototype.slice.call(list.querySelectorAll(".finding"));
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var search = document.getElementById("q");
+  var toggleAll = document.getElementById("toggleAll");
+  var noMatch = document.getElementById("noMatch");
+  var activeSev = "all";
+
+  function setOpen(finding, open) {
+    finding.classList.toggle("is-open", open);
+    finding.querySelector(".finding-head").setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  findings.forEach(function (finding) {
+    finding.querySelector(".finding-head").addEventListener("click", function () {
+      setOpen(finding, !finding.classList.contains("is-open"));
+    });
+  });
+
+  function apply() {
+    var term = (search.value || "").trim().toLowerCase();
+    var shown = 0;
+    findings.forEach(function (finding) {
+      var okSev = activeSev === "all" || finding.getAttribute("data-severity") === activeSev;
+      var okTerm = term === "" || finding.textContent.toLowerCase().indexOf(term) !== -1;
+      var visible = okSev && okTerm;
+      finding.style.display = visible ? "" : "none";
+      if (visible) shown++;
+    });
+    noMatch.classList.toggle("show", shown === 0);
+  }
+
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      activeSev = chip.getAttribute("data-sev");
+      chips.forEach(function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
+      apply();
+    });
+  });
+
+  var debounce;
+  search.addEventListener("input", function () {
+    window.clearTimeout(debounce);
+    debounce = window.setTimeout(apply, 90);
+  });
+
+  toggleAll.addEventListener("click", function () {
+    var expand = toggleAll.getAttribute("aria-pressed") !== "true";
+    findings.forEach(function (finding) {
+      if (finding.style.display !== "none") setOpen(finding, expand);
+    });
+    toggleAll.setAttribute("aria-pressed", expand ? "true" : "false");
+    toggleAll.textContent = expand ? "Contraer todo" : "Expandir todo";
+  });
+})();
+</script>
+</body>
+</html>

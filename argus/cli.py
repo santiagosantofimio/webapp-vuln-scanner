@@ -21,8 +21,8 @@ SEVERITY_BY_NAME = {
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="vigia",
-        description="Vigía: escáner de vulnerabilidades web defensivo y no destructivo.",
+        prog="argus",
+        description="Argus Sentinel: escáner de vulnerabilidades web defensivo y no destructivo.",
     )
     parser.add_argument("target", help="URL objetivo, por ejemplo http://localhost:8080")
     parser.add_argument("--max-depth", type=int, default=2, help="Profundidad máxima del rastreo")

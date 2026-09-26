@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from vigia.config import ScanConfig
-from vigia.detectors.base import DetectorContext
-from vigia.models import Page
+from argus.config import ScanConfig
+from argus.detectors.base import DetectorContext
+from argus.models import Page
 
 
 class FakeResponse:
