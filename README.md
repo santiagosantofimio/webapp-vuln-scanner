@@ -102,6 +102,17 @@ Argus Sentinel emits three report formats from the same set of findings: **JSON*
 
 The exit code is **CI-friendly**: `0` when nothing at or above the `--fail-on` threshold is found, non-zero otherwise.
 
+## Publish a report
+
+`scripts/deploy-report.sh` scans a target of your choice and publishes its HTML report to Cloudflare Pages. It needs an authenticated [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) (run `npx wrangler login` once).
+
+```bash
+scripts/deploy-report.sh http://localhost:8080
+scripts/deploy-report.sh https://your-own-site.com -- --i-own-this
+```
+
+Anything after `--` is forwarded to the scanner (for example `--i-own-this` or `--username/--password`). The project name defaults to `argus-sentinel`; override it with `ARGUS_PAGES_PROJECT`.
+
 ## Architecture
 
 Each check is an independent detector module implementing a common interface (`run(context) -> list[Finding]`), so new checks can be added without touching the core. A bounded crawler (same origin, configurable depth, page limit, and inter-request delay) feeds the detectors the pages it discovers.
