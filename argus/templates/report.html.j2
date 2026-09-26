@@ -6,199 +6,156 @@
 <title>Argus Sentinel — Reporte de seguridad</title>
 <style>
 :root {
-  --bg: #090c12;
-  --bg-grid: #0d121b;
-  --panel: #10151f;
-  --panel-hi: #141b28;
-  --line: #1f2836;
-  --line-hi: #2b384c;
-  --text: #e9eef6;
-  --muted: #9aa7bd;
-  --faint: #6c778c;
-  --brand: #4ee39b;
-  --brand-dim: #2b7a58;
-  --alta: #ff5f6e;
-  --media: #ffab52;
-  --baja: #4cc6e8;
-  --info: #8792a6;
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --ink: #15171c;
+  --muted: #58616f;
+  --faint: #8b94a1;
+  --line: #e5e8ed;
+  --line-strong: #d4d9e1;
+  --accent: #2f5cc4;
+  --alta: #b42318;
+  --media: #a86413;
+  --baja: #3f6291;
+  --info: #64748b;
   --sev: var(--info);
   --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --radius: 10px;
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --shadow-soft: 0 1px 2px rgba(20, 28, 48, 0.04), 0 8px 24px -14px rgba(20, 28, 48, 0.22);
+  --radius: 14px;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(78,227,155,0.04), transparent 240px),
-    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(43,56,76,0.14) 39px, rgba(43,56,76,0.14) 40px),
-    var(--bg);
-  color: var(--text);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--sans);
   font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
 }
-::selection { background: rgba(78,227,155,0.28); color: #fff; }
-:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
-* { scrollbar-width: thin; scrollbar-color: var(--line-hi) transparent; }
-::-webkit-scrollbar { width: 11px; height: 11px; }
-::-webkit-scrollbar-thumb { background: var(--line-hi); border-radius: 6px; border: 3px solid var(--bg); }
-::-webkit-scrollbar-thumb:hover { background: #3a4a63; }
+::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 5px; }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 7px; border: 3px solid var(--bg); }
 
-.wrap { max-width: 1000px; margin: 0 auto; padding: 0 22px 96px; }
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 24px 96px; }
 
 .masthead {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-  padding: 26px 0 22px;
-  border-bottom: 1px solid var(--line);
+  padding: 34px 0 22px;
 }
-.ident { display: flex; align-items: center; gap: 13px; min-width: 0; }
-.dot {
-  position: relative;
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--brand);
-  flex: none;
-}
-.dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
-  animation: live 2.6s cubic-bezier(0.22,1,0.36,1) infinite;
-}
-@keyframes live {
-  0% { transform: scale(0.75); opacity: 0.85; }
-  70%, 100% { transform: scale(1.7); opacity: 0; }
-}
-.wordmark {
-  font-family: var(--mono);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.wordmark b { color: var(--brand); font-weight: 600; }
-.tagline { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
+.ident { display: flex; align-items: center; gap: 12px; }
+.mark { width: 30px; height: 22px; color: var(--ink); flex: none; }
+.mark .pupil { fill: var(--accent); }
+.wordmark { font-size: 15px; font-weight: 640; letter-spacing: -0.01em; line-height: 1.2; }
+.tagline { font-size: 12px; color: var(--faint); letter-spacing: 0.01em; margin-top: 1px; }
 
-.readout {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 3px 18px;
-  font-family: var(--mono);
-  font-size: 12px;
-}
-.readout dt { color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
-.readout dd { margin: 0; color: var(--muted); text-align: right; word-break: break-all; }
-.readout dd b { color: var(--text); font-weight: 600; }
+.readout { display: grid; grid-template-columns: auto auto; gap: 4px 16px; margin: 0; }
+.readout dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--faint); }
+.readout dd { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; word-break: break-all; }
+.readout dd b { color: var(--ink); font-weight: 600; }
 
-.scene { padding: 30px 0 8px; }
-.scene h1 {
-  font-family: var(--mono);
-  font-size: clamp(21px, 3.4vw, 30px);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0 0 20px;
+.lede { padding: 20px 0 26px; border-top: 1px solid var(--line); }
+.lede h1 {
+  font-size: clamp(22px, 3vw, 31px);
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.16;
+  margin: 0 0 22px;
+  max-width: 24ch;
 }
-.scene h1 .verdict-clean { color: var(--brand); }
-.scene h1 .verdict-alert { color: var(--alta); }
+.lede h1 .n-alert { color: var(--alta); }
+.lede h1 .n-clean { color: #2f7d4f; }
 
-.meter { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); }
-.meter span { display: block; height: 100%; min-width: 0; }
+.meter { display: flex; gap: 3px; height: 8px; }
+.meter span { display: block; border-radius: 3px; min-width: 3px; }
 .meter span.alta { background: var(--alta); }
 .meter span.media { background: var(--media); }
 .meter span.baja { background: var(--baja); }
 .meter span.info { background: var(--info); }
-.meter span.none { background: linear-gradient(90deg, var(--brand-dim), var(--brand)); flex: 1; }
+.meter span.none { background: #2f7d4f; flex: 1; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+.legend span { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
+.legend .swatch { width: 8px; height: 8px; border-radius: 2px; }
+.legend b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
 
 .controls {
   position: sticky;
   top: 0;
   z-index: 20;
-  margin-top: 22px;
-  padding: 13px 0;
-  background: linear-gradient(180deg, var(--bg) 72%, rgba(9,12,18,0));
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  padding: 12px 0;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom: 1px solid var(--line);
 }
-.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chips { display: flex; gap: 7px; flex-wrap: wrap; }
 .chip {
   --c: var(--info);
   appearance: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.03em;
+  gap: 7px;
+  font-size: 12.5px;
   color: var(--muted);
-  background: var(--panel);
-  border: 1px solid var(--line);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
-  padding: 7px 13px;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.12s var(--ease-out);
+  padding: 6px 12px;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.1s var(--ease);
 }
+.chip .tick { width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+.chip .n { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
 .chip:active { transform: scale(0.97); }
-.chip .tick { width: 7px; height: 7px; border-radius: 2px; background: var(--c); flex: none; opacity: 0.85; }
-.chip .n { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-.chip[aria-pressed="true"] { color: var(--text); border-color: color-mix(in srgb, var(--c) 55%, var(--line)); background: color-mix(in srgb, var(--c) 15%, var(--panel)); }
+.chip[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
 .chip[data-sev="alta"] { --c: var(--alta); }
 .chip[data-sev="media"] { --c: var(--media); }
 .chip[data-sev="baja"] { --c: var(--baja); }
 .chip[data-sev="info"] { --c: var(--info); }
-.chip[data-sev="all"] { --c: var(--brand); }
-
-.spacer { flex: 1 1 40px; }
-.search {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-  padding: 0 11px; min-width: 180px; flex: 0 1 240px;
-}
+.chip[data-sev="all"] { --c: var(--accent); }
+.tools { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.search { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; padding: 0 11px; flex: 0 1 220px; }
 .search svg { width: 14px; height: 14px; color: var(--faint); flex: none; }
-.search input {
-  appearance: none; background: none; border: none; outline: none;
-  color: var(--text); font-family: var(--mono); font-size: 12.5px;
-  padding: 8px 0; width: 100%;
-}
+.search input { appearance: none; background: none; border: none; outline: none; color: var(--ink); font-family: var(--sans); font-size: 13px; padding: 8px 0; width: 100%; }
 .search input::placeholder { color: var(--faint); }
-.toggle-all {
-  appearance: none; cursor: pointer;
-  font-family: var(--mono); font-size: 12px; letter-spacing: 0.03em;
-  color: var(--muted); background: none; border: 1px solid var(--line);
-  border-radius: 8px; padding: 8px 12px;
-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.12s var(--ease-out);
-}
+.toggle-all { appearance: none; cursor: pointer; font-size: 12.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; padding: 8px 12px; white-space: nowrap; transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s var(--ease); }
 .toggle-all:active { transform: scale(0.97); }
 
-.list { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
-
-.finding {
-  --sev: var(--info);
-  background: var(--panel);
+.findings {
+  margin-top: 8px;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
-  transition: border-color 0.15s ease;
 }
+.finding { --sev: var(--info); border-top: 1px solid var(--line); }
+.finding:first-child { border-top: none; }
 .finding[data-severity="alta"] { --sev: var(--alta); }
 .finding[data-severity="media"] { --sev: var(--media); }
 .finding[data-severity="baja"] { --sev: var(--baja); }
 .finding[data-severity="info"] { --sev: var(--info); }
-.finding.is-open { border-color: color-mix(in srgb, var(--sev) 40%, var(--line)); }
 
-.finding-head {
+.row {
   appearance: none;
   width: 100%;
   cursor: pointer;
@@ -211,138 +168,64 @@ body {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 14px;
-  padding: 15px 18px;
+  padding: 16px 20px;
+  transition: background 0.15s ease;
 }
-.finding-head { transition: background 0.15s ease; }
-.finding-head:active { background: var(--panel-hi); }
-@media (hover: hover) and (pointer: fine) {
-  .finding-head:hover { background: var(--panel-hi); }
-  .finding:hover { border-color: var(--line-hi); }
-  .chip:hover { border-color: var(--line-hi); color: var(--text); }
-  .toggle-all:hover { color: var(--text); border-color: var(--line-hi); }
-}
-.sev-tag {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sev);
-  background: color-mix(in srgb, var(--sev) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sev) 40%, transparent);
-  border-radius: 6px;
-  padding: 4px 9px;
-  white-space: nowrap;
-  flex: none;
-}
-.finding-title { min-width: 0; }
-.finding-title .t { font-weight: 600; font-size: 15px; letter-spacing: -0.005em; }
-.finding-title .loc {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--muted);
-  margin-top: 3px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.finding-title .loc .m { color: var(--brand); }
-.head-right { display: flex; align-items: center; gap: 12px; flex: none; }
-.owasp {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px 9px;
-  white-space: nowrap;
-}
-.owasp b { color: var(--text); font-weight: 600; }
-.caret { width: 12px; height: 12px; color: var(--faint); transition: transform 0.22s var(--ease-out); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--sev); flex: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sev) 14%, transparent); }
+.rowmain { min-width: 0; }
+.rowmain .title { font-weight: 570; letter-spacing: -0.006em; }
+.rowmain .loc { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rowmain .loc .m { color: var(--accent); font-weight: 600; }
+.rowmeta { display: flex; align-items: center; gap: 11px; flex: none; }
+.sev { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sev); background: color-mix(in srgb, var(--sev) 11%, transparent); border-radius: 5px; padding: 3px 8px; white-space: nowrap; }
+.owasp { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.owasp b { color: var(--ink); font-weight: 600; }
+.caret { width: 11px; height: 11px; color: var(--faint); transition: transform 0.25s var(--ease); }
 .finding.is-open .caret { transform: rotate(90deg); color: var(--sev); }
 
-.finding-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.26s var(--ease-out); }
-.finding.is-open .finding-body { grid-template-rows: 1fr; }
-.finding-body > .inner { overflow: hidden; min-height: 0; }
-.body-pad { padding: 4px 18px 18px; border-top: 1px solid var(--line); margin-top: -1px; }
-.finding.is-open .body-pad { border-top-color: color-mix(in srgb, var(--sev) 26%, var(--line)); }
+.panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); }
+.finding.is-open .panel { grid-template-rows: 1fr; }
+.panel > .inner { overflow: hidden; min-height: 0; }
+.panel-pad { padding: 2px 20px 20px 43px; }
+.field { margin-top: 16px; }
+.field:first-child { margin-top: 4px; }
+.field .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.11em; color: var(--faint); margin-bottom: 6px; }
+.field .prose { color: var(--ink); max-width: 68ch; }
+.evidence { font-family: var(--mono); font-size: 12.5px; line-height: 1.6; color: #33404f; background: #f6f7f9; border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; white-space: pre-wrap; word-break: break-word; }
+.srcline { margin-top: 16px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--faint); }
+.srcline b { color: var(--muted); font-weight: 500; }
 
-.field { margin-top: 15px; }
-.field:first-child { margin-top: 14px; }
-.field .k {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--faint);
-  margin-bottom: 6px;
-}
-.field .prose { color: var(--text); max-width: 72ch; }
-.evidence {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: #cdd7e6;
-  background: var(--bg-grid);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 11px 13px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.evidence::before { content: "› "; color: var(--sev); }
-.tagrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; align-items: center; }
-.src {
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em;
-  color: var(--faint); text-transform: uppercase;
-}
-.src b { color: var(--muted); font-weight: 500; }
-
-.empty {
-  margin-top: 20px;
-  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
-  background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 7%, var(--panel)), var(--panel));
-  border-radius: var(--radius);
-  padding: 46px 28px;
-  text-align: center;
-}
-.empty .mark { font-family: var(--mono); color: var(--brand); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; }
-.empty h2 { font-family: var(--mono); font-weight: 600; font-size: 20px; margin: 12px 0 6px; }
+.empty { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-soft); padding: 52px 30px; text-align: center; }
+.empty .seal { width: 40px; height: 40px; margin: 0 auto 16px; color: #2f7d4f; }
+.empty h2 { font-weight: 640; font-size: 20px; letter-spacing: -0.01em; margin: 0 0 6px; }
 .empty p { color: var(--muted); margin: 0; }
 
-.no-match { display: none; text-align: center; color: var(--muted); font-family: var(--mono); font-size: 13px; padding: 40px; }
+.no-match { display: none; text-align: center; color: var(--muted); font-size: 13.5px; padding: 40px; }
 .no-match.show { display: block; }
 
-.foot {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  color: var(--faint);
-  font-size: 12.5px;
-  display: flex;
-  gap: 14px;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-.foot .lock { color: var(--brand); font-family: var(--mono); letter-spacing: 0.1em; }
+.foot { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--faint); font-size: 12.5px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.foot b { color: var(--muted); font-weight: 600; }
 
-@media (max-width: 640px) {
-  .finding-head { grid-template-columns: auto 1fr; gap: 11px; }
-  .head-right { grid-column: 1 / -1; justify-content: space-between; padding-left: 2px; }
-  .scene h1 { font-size: 20px; }
-  .readout { text-align: left; }
+@media (prefers-reduced-motion: no-preference) {
+  .finding { opacity: 0; transform: translateY(6px); animation: rise 0.4s var(--ease) forwards; animation-delay: calc(var(--i) * 32ms); }
+  @keyframes rise { to { opacity: 1; transform: none; } }
 }
-@media (prefers-reduced-motion: reduce) {
-  .finding-body, .caret, .meter span { transition: none; }
-  .dot::after { animation: none; opacity: 0.5; transform: scale(1.2); }
+@media (prefers-reduced-transparency: reduce) {
+  .controls { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (max-width: 620px) {
+  .row { grid-template-columns: auto 1fr; }
+  .rowmeta { grid-column: 1 / -1; justify-content: space-between; padding-left: 23px; }
+  .panel-pad { padding-left: 20px; }
+  .tools { margin-left: 0; width: 100%; }
+  .search { flex: 1; }
 }
 @media print {
-  body { background: #fff; color: #12151b; }
-  .controls, .search, .toggle-all, .caret { display: none !important; }
-  .finding, .panel, .empty { break-inside: avoid; border-color: #d5dae2; }
-  .finding-body { grid-template-rows: 1fr !important; }
-  .wordmark, .wordmark b, .dot { color: #12151b; }
-  .evidence { background: #f4f6f9; color: #1d222b; }
+  body { background: #fff; }
+  .controls { display: none; }
+  .findings, .empty { box-shadow: none; }
+  .panel { grid-template-rows: 1fr !important; }
+  .finding { opacity: 1 !important; transform: none !important; animation: none !important; break-inside: avoid; }
 }
 </style>
 </head>
@@ -350,33 +233,37 @@ body {
 <div class="wrap">
   <header class="masthead">
     <div class="ident">
-      <span class="dot" aria-hidden="true"></span>
+      <svg class="mark" viewBox="0 0 30 22" fill="none" aria-hidden="true">
+        <path d="M2 11C6 4 24 4 28 11C24 18 6 18 2 11Z" stroke="currentColor" stroke-width="1.6"/>
+        <circle class="pupil" cx="15" cy="11" r="3.4"/>
+      </svg>
       <div>
-        <div class="wordmark">Argus <b>Sentinel</b></div>
-        <div class="tagline">Escáner de vulnerabilidades web · detección defensiva</div>
+        <div class="wordmark">Argus Sentinel</div>
+        <div class="tagline">Reporte de seguridad web · detección defensiva</div>
       </div>
     </div>
     <dl class="readout">
       <dt>Objetivo</dt><dd><b>{{ summary.target }}</b></dd>
       <dt>Escaneo</dt><dd>{{ summary.generated_at_human }}</dd>
-      <dt>Páginas</dt><dd><b>{{ summary.pages_crawled }}</b> rastreadas</dd>
-      <dt>Hallazgos</dt><dd><b>{{ summary.total_findings }}</b> en total</dd>
+      <dt>Páginas</dt><dd><b>{{ summary.pages_crawled }}</b></dd>
     </dl>
   </header>
 
-  <section class="scene">
+  <section class="lede">
     {% if findings %}
-    <h1>Se detectaron <span class="verdict-alert">{{ summary.total_findings }} hallazgo{{ '' if summary.total_findings == 1 else 's' }}</span> en {{ summary.pages_crawled }} página{{ '' if summary.pages_crawled == 1 else 's' }}.</h1>
-    {% else %}
-    <h1>El objetivo <span class="verdict-clean">superó todas las comprobaciones</span>.</h1>
-    {% endif %}
-    <div class="meter" role="img" aria-label="Distribución de hallazgos por severidad">
-      {% if findings %}
-        {% for sev in severity_order %}{% if summary.counts[sev.value] %}<span class="{{ sev.value }}" style="flex: {{ summary.counts[sev.value] }}" title="{{ severity_labels[sev] }}: {{ summary.counts[sev.value] }}"></span>{% endif %}{% endfor %}
-      {% else %}
-        <span class="none"></span>
-      {% endif %}
+    <h1>Se detectaron <span class="n-alert">{{ summary.total_findings }} hallazgo{{ '' if summary.total_findings == 1 else 's' }}</span> que conviene revisar.</h1>
+    <div class="meter" role="img" aria-label="Distribución por severidad">
+      {% for sev in severity_order %}{% if summary.counts[sev.value] %}<span class="{{ sev.value }}" style="flex: {{ summary.counts[sev.value] }}"></span>{% endif %}{% endfor %}
     </div>
+    <div class="legend">
+      {% for sev in severity_order %}{% if summary.counts[sev.value] %}
+      <span><span class="swatch" style="background: var(--{{ sev.value }})"></span>{{ severity_labels[sev] }} <b>{{ summary.counts[sev.value] }}</b></span>
+      {% endif %}{% endfor %}
+    </div>
+    {% else %}
+    <h1>El objetivo <span class="n-clean">superó todas las comprobaciones</span>.</h1>
+    <div class="meter"><span class="none"></span></div>
+    {% endif %}
   </section>
 
   {% if findings %}
@@ -387,31 +274,33 @@ body {
       <button type="button" class="chip" data-sev="{{ sev.value }}" aria-pressed="false"><span class="tick"></span>{{ severity_labels[sev] }} <span class="n">{{ summary.counts[sev.value] }}</span></button>
       {% endif %}{% endfor %}
     </div>
-    <span class="spacer"></span>
-    <label class="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
-      <input type="search" id="q" placeholder="Filtrar hallazgos…" aria-label="Filtrar hallazgos por texto" autocomplete="off">
-    </label>
-    <button type="button" class="toggle-all" id="toggleAll" aria-pressed="false">Expandir todo</button>
+    <div class="tools">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
+        <input type="search" id="q" placeholder="Filtrar…" aria-label="Filtrar hallazgos por texto" autocomplete="off">
+      </label>
+      <button type="button" class="toggle-all" id="toggleAll" aria-pressed="false">Expandir todo</button>
+    </div>
   </div>
 
-  <div class="list" id="list">
+  <div class="findings" id="list">
     {% for f in findings %}
-    <article class="finding{{ ' is-open' if f.severity.rank >= 2 else '' }}" data-severity="{{ f.severity.value }}" data-owasp="{{ f.owasp.code }}">
-      <button type="button" class="finding-head" aria-expanded="{{ 'true' if f.severity.rank >= 2 else 'false' }}" aria-controls="body-{{ loop.index }}">
-        <span class="sev-tag">{{ severity_labels[f.severity] }}</span>
-        <span class="finding-title">
-          <span class="t">{{ f.title }}</span>
+    <article class="finding{{ ' is-open' if f.severity.rank >= 2 else '' }}" data-severity="{{ f.severity.value }}" data-owasp="{{ f.owasp.code }}" style="--i: {{ loop.index0 }}">
+      <button type="button" class="row" aria-expanded="{{ 'true' if f.severity.rank >= 2 else 'false' }}" aria-controls="p-{{ loop.index }}">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="rowmain">
+          <span class="title">{{ f.title }}</span>
           <span class="loc"><span class="m">{{ f.request_method }}</span> {{ f.url }}{% if f.parameter %} · {{ f.parameter }}{% endif %}</span>
         </span>
-        <span class="head-right">
+        <span class="rowmeta">
+          <span class="sev">{{ severity_labels[f.severity] }}</span>
           <span class="owasp"><b>{{ f.owasp.code }}</b> {{ f.owasp.name }}</span>
           <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
         </span>
       </button>
-      <div class="finding-body" id="body-{{ loop.index }}">
+      <div class="panel" id="p-{{ loop.index }}">
         <div class="inner">
-          <div class="body-pad">
+          <div class="panel-pad">
             {% if f.parameter %}
             <div class="field">
               <div class="k">Ubicación</div>
@@ -427,9 +316,7 @@ parámetro: {{ f.parameter }}</div>
               <div class="k">Remediación</div>
               <div class="prose">{{ f.remediation }}</div>
             </div>
-            <div class="tagrow">
-              <span class="src">detector: <b>{{ f.detector }}</b></span>
-            </div>
+            <div class="srcline">detector · <b>{{ f.detector }}</b></div>
           </div>
         </div>
       </div>
@@ -439,14 +326,14 @@ parámetro: {{ f.parameter }}</div>
   <div class="no-match" id="noMatch">Ningún hallazgo coincide con el filtro.</div>
   {% else %}
   <div class="empty">
-    <div class="mark">Sin hallazgos</div>
+    <svg class="seal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l7 3v6c0 4.2-2.8 7.3-7 9-4.2-1.7-7-4.8-7-9V6l7-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>
     <h2>Nada que reportar</h2>
     <p>El objetivo superó todas las comprobaciones ejecutadas por Argus Sentinel.</p>
   </div>
   {% endif %}
 
   <footer class="foot">
-    <span class="lock">◆ USO DEFENSIVO</span>
+    <b>Uso defensivo.</b>
     <span>Argus Sentinel solo detecta; nunca explota, borra ni modifica datos. Úsalo solo contra sistemas propios o con autorización escrita.</span>
   </footer>
 </div>
@@ -464,11 +351,11 @@ parámetro: {{ f.parameter }}</div>
 
   function setOpen(finding, open) {
     finding.classList.toggle("is-open", open);
-    finding.querySelector(".finding-head").setAttribute("aria-expanded", open ? "true" : "false");
+    finding.querySelector(".row").setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   findings.forEach(function (finding) {
-    finding.querySelector(".finding-head").addEventListener("click", function () {
+    finding.querySelector(".row").addEventListener("click", function () {
       setOpen(finding, !finding.classList.contains("is-open"));
     });
   });
