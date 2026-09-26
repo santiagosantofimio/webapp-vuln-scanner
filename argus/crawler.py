@@ -50,8 +50,10 @@ def _parse_links(soup: BeautifulSoup, page_url: str) -> list[str]:
 
 
 def _collect_headers(response: httpx.Response) -> dict[str, str]:
+    headers = response.headers
+    items = headers.multi_items() if hasattr(headers, "multi_items") else headers.items()
     collected: dict[str, list[str]] = {}
-    for key, value in response.headers.multi_items():
+    for key, value in items:
         collected.setdefault(key.lower(), []).append(value)
     return {key: "\n".join(values) for key, values in collected.items()}
 

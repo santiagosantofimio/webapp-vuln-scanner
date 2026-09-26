@@ -32,9 +32,12 @@ async def run_scan(config: ScanConfig) -> ScanResult:
     async with AsyncExitStack() as stack:
         client = await stack.enter_async_context(HttpClient(config))
 
+        login_pages: list[Page] = []
         if config.credentials is not None:
             result = await login(client, config, config.credentials)
             notes.append(result.message)
+            if result.page is not None:
+                login_pages.append(result.page)
 
         second_client = None
         if config.second_credentials is not None:
@@ -42,7 +45,7 @@ async def run_scan(config: ScanConfig) -> ScanResult:
             result = await login(second_client, config, config.second_credentials)
             notes.append(f"Segunda sesion: {result.message}")
 
-        pages = await crawl(client, config)
+        pages = login_pages + await crawl(client, config)
         ctx = DetectorContext(
             client=client,
             config=config,

@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
 from .config import Credentials, ScanConfig
+from .crawler import build_page
 from .http_client import HttpClient
+from .models import Page
 
 
 @dataclass
 class LoginResult:
     success: bool
     message: str
+    page: Optional[Page] = None
 
 
 def _extract_login_form(html: str, login_url: str, password_field: str) -> tuple[str, dict[str, str]]:
@@ -52,17 +56,25 @@ async def login(client: HttpClient, config: ScanConfig, credentials: Credentials
     data[config.username_field] = credentials.username
     data[config.password_field] = credentials.password
 
-    response = await client.post(action, data=data, follow_redirects=True)
+    response = await client.post(action, data=data, follow_redirects=False)
     if response is None:
         return LoginResult(False, f"No hubo respuesta al enviar el login a {action}")
 
+    login_page = build_page(action, response)
+
+    verify = await client.get(config.target, follow_redirects=True)
     login_path = urlsplit(login_url).path
-    final_path = urlsplit(str(response.url)).path
-    bounced = final_path == login_path and response.status_code == 200
+    authenticated = (
+        verify is not None
+        and verify.status_code == 200
+        and urlsplit(str(verify.url)).path != login_path
+    )
 
-    if response.status_code >= 400:
-        return LoginResult(False, f"El login respondio {response.status_code}")
-    if bounced:
-        return LoginResult(False, "El login no parece haber funcionado (se volvio al formulario)")
+    if not authenticated:
+        return LoginResult(
+            False,
+            "El login no parece haber funcionado (el objetivo sigue exigiendo sesion)",
+            login_page,
+        )
 
-    return LoginResult(True, f"Sesion iniciada como '{credentials.username}'")
+    return LoginResult(True, f"Sesion iniciada como '{credentials.username}'", login_page)
