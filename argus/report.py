@@ -7,6 +7,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .models import Finding, Severity
+from .sarif import to_sarif
 from .scanner import ScanResult
 
 _TEMPLATE_DIR = Path(__file__).parent / "templates"
@@ -64,8 +65,15 @@ def to_html(result: ScanResult) -> str:
     )
 
 
-def write_reports(result: ScanResult, json_path: str | None, html_path: str | None) -> None:
+def write_reports(
+    result: ScanResult,
+    json_path: str | None,
+    html_path: str | None,
+    sarif_path: str | None = None,
+) -> None:
     if json_path:
         Path(json_path).write_text(to_json(result), encoding="utf-8")
     if html_path:
         Path(html_path).write_text(to_html(result), encoding="utf-8")
+    if sarif_path:
+        Path(sarif_path).write_text(to_sarif(result), encoding="utf-8")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 from ..config import ScanConfig
 from ..http_client import HttpClient
@@ -13,6 +13,7 @@ class DetectorContext:
     client: HttpClient
     config: ScanConfig
     pages: list[Page]
+    second_client: Optional[HttpClient] = None
 
     @property
     def target(self) -> str:

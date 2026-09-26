@@ -3,7 +3,9 @@ from __future__ import annotations
 from .base import Detector, DetectorContext
 from .cookies import CookiesDetector
 from .csrf import CsrfDetector
+from .idor import IdorDetector
 from .info_leak import InfoLeakDetector
+from .rate_limit import RateLimitDetector
 from .reflected_xss import ReflectedXssDetector
 from .security_headers import SecurityHeadersDetector
 from .sensitive_paths import SensitivePathsDetector
@@ -21,6 +23,8 @@ def default_detectors() -> list[Detector]:
         CsrfDetector(),
         SensitivePathsDetector(),
         InfoLeakDetector(),
+        IdorDetector(),
+        RateLimitDetector(),
     ]
 
 

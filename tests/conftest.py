@@ -6,17 +6,20 @@ from argus.models import Page
 
 
 class FakeResponse:
-    def __init__(self, text="", status_code=200, headers=None):
+    def __init__(self, text="", status_code=200, headers=None, url=""):
         self.text = text
         self.status_code = status_code
         self.headers = headers or {}
+        self.url = url
 
 
 class FakeClient:
-    def __init__(self, routes=None, default=None):
+    def __init__(self, routes=None, default=None, post_response=None):
         self.routes = routes or {}
         self.default = default if default is not None else FakeResponse(status_code=404)
+        self.post_response = post_response
         self.calls = []
+        self.posts = []
 
     async def get(self, url, **kwargs):
         self.calls.append(url)
@@ -26,7 +29,9 @@ class FakeClient:
         return self.default
 
     async def post(self, url, **kwargs):
-        self.calls.append(url)
+        self.posts.append((url, kwargs.get("data")))
+        if self.post_response is not None:
+            return self.post_response
         return self.default
 
 

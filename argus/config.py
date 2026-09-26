@@ -1,6 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass
+class Credentials:
+    username: str
+    password: str
 
 
 @dataclass
@@ -16,3 +23,10 @@ class ScanConfig:
     allow_external_host: bool = False
     verify_tls: bool = True
     authorized_hosts: list[str] = field(default_factory=list)
+    login_url: Optional[str] = None
+    username_field: str = "username"
+    password_field: str = "password"
+    credentials: Optional[Credentials] = None
+    second_credentials: Optional[Credentials] = None
+    check_rate_limit: bool = False
+    rate_limit_requests: int = 15
